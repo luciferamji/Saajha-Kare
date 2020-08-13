@@ -4,6 +4,10 @@ import 'package:nearby_connections/nearby_connections.dart';
 import "dart:math";
 
 class MakeSenderConnectionScreen extends StatefulWidget {
+  final name;
+
+  const MakeSenderConnectionScreen(this.name);
+
   @override
   _MakeSenderConnectionScreenState createState() =>
       _MakeSenderConnectionScreenState();
@@ -31,6 +35,7 @@ class _MakeSenderConnectionScreenState
               Text("Incoming: " + info.isIncomingConnection.toString()),
               Text("Accept Connection"),
               RaisedButton(onPressed: () {
+                Navigator.pop(context);
                 Navigator.of(context)
                     .pushNamed("Select File Screen", arguments: id);
               })
@@ -43,12 +48,12 @@ class _MakeSenderConnectionScreenState
 
   void startAdvertising() async {
     await Nearby().stopAdvertising();
-    final String userName = Random().nextInt(10000).toString();
+
     final Strategy strategy = Strategy.P2P_POINT_TO_POINT;
 
     try {
       bool a = await Nearby().startAdvertising(
-        userName,
+        widget.name,
         strategy,
         onConnectionInitiated: onConnectionInit,
         onConnectionResult: (id, status) {
@@ -83,7 +88,7 @@ class _MakeSenderConnectionScreenState
                       angle: anim.value,
                       child: Opacity(
                           opacity: 0.5,
-                          child: Image.asset("assets/images/ashok_chakra.jpg")),
+                          child: Image.asset("assets/images/ashok_chakra.png")),
                     ),
                   );
                 }),

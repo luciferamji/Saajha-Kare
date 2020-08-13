@@ -37,9 +37,12 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       title: 'Share India',
       home: HomeScreen(),
+      theme: ThemeData(primarySwatch: Colors.orange),
       routes: {
-        'send': (_) => MakeSenderConnectionScreen(),
-        'receive': (_) => MakeReceiverConnectionScreen(),
+        'send': (context) => MakeSenderConnectionScreen(
+            ModalRoute.of(context).settings.arguments),
+        'receive': (context) => MakeReceiverConnectionScreen(
+            ModalRoute.of(context).settings.arguments),
         'Select File Screen': (context) =>
             SendReceiveFileScreen(ModalRoute.of(context).settings.arguments)
       },

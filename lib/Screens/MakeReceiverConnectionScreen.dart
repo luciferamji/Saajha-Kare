@@ -4,6 +4,9 @@ import 'package:nearby_connections/nearby_connections.dart';
 import "dart:math";
 
 class MakeReceiverConnectionScreen extends StatefulWidget {
+  final name;
+
+  const MakeReceiverConnectionScreen(this.name);
   @override
   _MakeReceiverConnectionScreenState createState() =>
       _MakeReceiverConnectionScreenState();
@@ -13,7 +16,6 @@ class _MakeReceiverConnectionScreenState
     extends State<MakeReceiverConnectionScreen> {
   @override
   void initState() {
-    print("hi");
     startDiscovery();
 
     super.initState();
@@ -33,6 +35,7 @@ class _MakeReceiverConnectionScreenState
               Text("Incoming: " + info.isIncomingConnection.toString()),
               Text("Accept Connection"),
               RaisedButton(onPressed: () {
+                Navigator.pop(context);
                 Navigator.of(context)
                     .pushNamed("Select File Screen", arguments: id);
               })
@@ -45,12 +48,11 @@ class _MakeReceiverConnectionScreenState
 
   void startDiscovery() async {
     await Nearby().stopDiscovery();
-    final String userName = Random().nextInt(10000).toString();
     final Strategy strategy = Strategy.P2P_POINT_TO_POINT;
 
     try {
       bool a = await Nearby().startDiscovery(
-        userName,
+        widget.name,
         strategy,
         onEndpointLost: (endpointId) => print("disconnected"),
         onEndpointFound: (endpointId, endpointName, serviceId) =>
@@ -68,7 +70,7 @@ class _MakeReceiverConnectionScreenState
                     onPressed: () {
                       Navigator.pop(context);
                       Nearby().requestConnection(
-                        userName,
+                        widget.name,
                         endpointId,
                         onConnectionInitiated: (id, info) {
                           onConnectionInit(id, info);
@@ -113,7 +115,7 @@ class _MakeReceiverConnectionScreenState
                       angle: anim.value,
                       child: Opacity(
                           opacity: 0.5,
-                          child: Image.asset("assets/images/ashok_chakra.jpg")),
+                          child: Image.asset("assets/images/ashok_chakra.png")),
                     ),
                   );
                 }),
