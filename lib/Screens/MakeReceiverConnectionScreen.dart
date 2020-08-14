@@ -24,28 +24,57 @@ class _MakeReceiverConnectionScreenState
   }
 
   void onConnectionInit(String id, ConnectionInfo info) {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      builder: (builder) {
-        return Center(
-          child: Column(
-            children: <Widget>[
-              Text("hihihi"),
-              Text("id: " + id),
-              Text("Token: " + info.authenticationToken),
-              Text("Name" + info.endpointName),
-              Text("Incoming: " + info.isIncomingConnection.toString()),
-              Text("Accept Connection"),
-              RaisedButton(onPressed: () {
-                Navigator.pop(context);
-                Navigator.of(context)
-                    .pushNamed("Select File Screen", arguments: id);
-              })
-            ],
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          content: Text(
+            "${info.endpointName} wants to connect with you from Token ${info.authenticationToken} ",
+            style: TextStyle(fontSize: 20),
+            softWrap: true,
           ),
+          actions: [
+            FlatButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.of(context)
+                      .pushNamed("Select File Screen", arguments: id);
+                },
+                child: Text("Accept")),
+            FlatButton(
+                onPressed: () async {
+                  await Nearby().rejectConnection(id);
+                  Navigator.pop(context);
+                },
+                child: Text("Reject"))
+          ],
         );
       },
     );
+
+    // showModalBottomSheet(
+    //   context: context,
+    //   builder: (builder) {
+    //     return Center(
+    //       child: Column(
+    //         children: <Widget>[
+    //           Text("hihihi"),
+    //           Text("id: " + id),
+    //           Text("Token: " + info.authenticationToken),
+    //           Text("Name" + info.endpointName),
+    //           Text("Incoming: " + info.isIncomingConnection.toString()),
+    //           Text("Accept Connection"),
+    //           RaisedButton(onPressed: () {
+    //             Navigator.pop(context);
+    //             Navigator.of(context)
+    //                 .pushNamed("Select File Screen", arguments: id);
+    //           })
+    //         ],
+    //       ),
+    //     );
+    //   },
+    // );
   }
 
   void startAdvertising() async {

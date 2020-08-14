@@ -1,0 +1,3 @@
+class ConnectionStatus {
+  bool connected;
+}

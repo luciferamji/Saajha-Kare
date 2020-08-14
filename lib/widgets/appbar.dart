@@ -4,6 +4,7 @@ class MyAppbar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+        width: double.infinity,
         alignment: Alignment.centerLeft,
         decoration: BoxDecoration(
           gradient: LinearGradient(
