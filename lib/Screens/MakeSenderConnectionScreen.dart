@@ -2,12 +2,14 @@ import "package:flutter/material.dart";
 import "package:animator/animator.dart";
 import 'package:nearby_connections/nearby_connections.dart';
 import "dart:math";
+import "package:circle_list/circle_list.dart";
+import "../widgets/appbar.dart";
+import "../Models/DiscoverDevices.dart";
 
 class MakeSenderConnectionScreen extends StatefulWidget {
   final name;
 
   const MakeSenderConnectionScreen(this.name);
-
   @override
   _MakeSenderConnectionScreenState createState() =>
       _MakeSenderConnectionScreenState();
@@ -15,9 +17,11 @@ class MakeSenderConnectionScreen extends StatefulWidget {
 
 class _MakeSenderConnectionScreenState
     extends State<MakeSenderConnectionScreen> {
+  List<DiscoverDevices> discoveredDevices = [];
   @override
   void initState() {
-    startAdvertising();
+    startDiscovery();
+
     super.initState();
   }
 
@@ -46,23 +50,64 @@ class _MakeSenderConnectionScreenState
     );
   }
 
-  void startAdvertising() async {
+  void startDiscovery() async {
+    await Nearby().stopDiscovery();
     await Nearby().stopAdvertising();
-
     final Strategy strategy = Strategy.P2P_POINT_TO_POINT;
 
     try {
-      bool a = await Nearby().startAdvertising(
+      bool a = await Nearby().startDiscovery(
         widget.name,
         strategy,
-        onConnectionInitiated: onConnectionInit,
-        onConnectionResult: (id, status) {
-          print(status.toString() + "    " + id);
+        onEndpointLost: (endpointId) {
+          print("disconnected");
+          this.setState(() {
+            discoveredDevices
+                .removeWhere((element) => element.endpointId == endpointId);
+          });
+          print(discoveredDevices);
         },
-        onDisconnected: (id) {
-          print("Disconnected: " + id);
+        onEndpointFound: (endpointId, endpointName, serviceId) {
+          this.setState(() {
+            discoveredDevices.add(DiscoverDevices(endpointId, endpointName));
+          });
+          print(discoveredDevices);
+          // showModalBottomSheet(
+          //   context: context,
+          //   builder: (builder) {
+          //     return Center(
+          //       child: Column(
+          //         children: <Widget>[
+          //           Text("id: " + endpointId),
+          //           Text("Name: " + endpointName),
+          //           Text("ServiceId: " + serviceId),
+          //           RaisedButton(
+          //             child: Text("Request Connection"),
+          //             onPressed: () {
+          //               Navigator.pop(context);
+          //               Nearby().requestConnection(
+          //                 widget.name,
+          //                 endpointId,
+          //                 onConnectionInitiated: (id, info) {
+          //                   onConnectionInit(id, info);
+          //                 },
+          //                 onConnectionResult: (id, status) {
+          //                   print(status);
+          //                 },
+          //                 onDisconnected: (id) {
+          //                   print(id);
+          //                 },
+          //               );
+          //             },
+          //           ),
+          //         ],
+          //       ),
+          //     );
+          //   },
+          // );
         },
       );
+
       print("ADVERTISING: " + a.toString());
     } catch (exception) {
       print(exception);
@@ -72,29 +117,68 @@ class _MakeSenderConnectionScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.5,
-          width: MediaQuery.of(context).size.width,
-          child: FittedBox(
-            fit: BoxFit.cover,
-            child: Animator<double>(
-                duration: Duration(seconds: 10),
-                repeats: 1000,
-                tween: Tween<double>(begin: 0, end: 2 * pi),
-                builder: (_, anim, __) {
-                  return Center(
-                    child: Transform.rotate(
-                      angle: anim.value,
-                      child: Opacity(
-                          opacity: 0.5,
-                          child: Image.asset("assets/images/ashok_chakra.png")),
-                    ),
-                  );
-                }),
+        body: Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.orange, Colors.white, Color(0xFFB4F6C1)],
+        ),
+      ),
+      child: SafeArea(
+        child: Scaffold(
+          appBar: MyAppbar(),
+          body: Center(
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.5,
+              width: double.infinity,
+              child: Stack(
+                children: [
+                  Animator<double>(
+                      duration: Duration(seconds: 10),
+                      repeats: 1000,
+                      tween: Tween<double>(begin: 0, end: 2 * pi),
+                      builder: (_, anim, __) {
+                        return Center(
+                          child: Transform.rotate(
+                            angle: anim.value,
+                            child: Opacity(
+                                opacity: 0.26,
+                                child: Image.asset(
+                                    "assets/images/ashok_chakra.png")),
+                          ),
+                        );
+                      }),
+                  CircleList(origin: Offset(0, 0), children: [
+                    for (var i in discoveredDevices)
+                      Container(
+                        height: 120,
+                        child: (Column(
+                          children: [
+                            Image.asset(
+                              "assets/images/phone.png",
+                              scale: 5,
+                              fit: BoxFit.contain,
+                            ),
+                            Container(
+                              alignment: Alignment.center,
+                              width: 100,
+                              child: Text(
+                                i.endpointName,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                                overflow: TextOverflow.fade,
+                                textAlign: TextAlign.center,
+                                softWrap: true,
+                              ),
+                            )
+                          ],
+                        )),
+                      )
+                  ]),
+                ],
+              ),
+            ),
           ),
         ),
       ),
-    );
+    ));
   }
 }

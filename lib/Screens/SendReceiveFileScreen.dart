@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import "package:flutter/material.dart";
@@ -17,14 +18,32 @@ class SendReceiveFileScreen extends StatefulWidget {
 class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
   Map<String, double> incomingFiles = {};
   Map<String, List<Color>> mapColor = {};
+
   List<Color> colorSend = [Color(0xFFFE5502), Color(0xFFFCD5A0)];
   List<Color> colorReceived = [Color(0xFF2B7B28), Color(0xFFB2F7C2)];
   File tempFile; //reference to the file currently being transferred
+  var transferinSeconds = 0;
+  var transferData = 0;
+  var currentSpeed = 0.0;
+  var currentSpeedData = 0.0;
+  var swatch = Stopwatch();
   Map<int, String> map = Map();
+  var stopWatchIsRunning = false;
+
   @override
   void initState() {
+    Nearby().stopAdvertising();
+    Nearby().stopDiscovery();
+    Timer.periodic(Duration(seconds: 1), updateSpeed);
     super.initState();
     acceptConnection();
+  }
+
+  void updateSpeed(timer) {
+    this.setState(() {
+      currentSpeedData = (currentSpeed / 1000000);
+    });
+    currentSpeed = 0;
   }
 
   void acceptConnection() async {
@@ -50,6 +69,8 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
                 print("File doesnt exist");
               }
             } else {
+              print("hiiiiii");
+
               map[payloadId] = fileName;
             }
           }
@@ -60,7 +81,19 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
       },
       onPayloadTransferUpdate: (endid, payloadTransferUpdate) {
         String name = map[payloadTransferUpdate.id];
+
         if (payloadTransferUpdate.status == PayloadStatus.IN_PROGRRESS) {
+          transferinSeconds =
+              payloadTransferUpdate.bytesTransferred - transferData;
+          transferData += transferinSeconds;
+          currentSpeed += transferinSeconds;
+          print(transferinSeconds.toString() +
+              "                               " +
+              payloadTransferUpdate.bytesTransferred.toString() +
+              "                               " +
+              transferData.toString() +
+              "                              " +
+              currentSpeed.toString());
           this.setState(() {
             incomingFiles[name] = (payloadTransferUpdate.bytesTransferred /
                 payloadTransferUpdate.totalBytes);
@@ -69,6 +102,8 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
           print("failed");
           print(endid + ": FAILED to transfer file");
         } else if (payloadTransferUpdate.status == PayloadStatus.SUCCESS) {
+          transferinSeconds = 0;
+          transferData = 0;
           this.setState(() {
             incomingFiles[name] = 1;
           });
@@ -84,18 +119,8 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
     );
   }
 
-  Scaffold check2() {
-    Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        toolbarHeight: 200,
-        title: Text("FILE Tansfer"),
-        automaticallyImplyLeading: false,
-      ),
-    );
-  }
-
-  Scaffold check() {
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: CustomScrollView(
         slivers: <Widget>[
@@ -105,6 +130,7 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
             automaticallyImplyLeading: false,
             flexibleSpace: Container(
               child: FlexibleSpaceBar(
+                title: Text(currentSpeedData.toStringAsFixed(2)),
                 background: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -140,7 +166,7 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
                         String key = incomingFiles.keys.elementAt(i);
                         if (key == null) return SizedBox.shrink();
                         double value = incomingFiles.values.elementAt(i);
-                        print(value);
+
                         return Card(
                           margin:
                               EdgeInsets.only(bottom: 15, right: 5, left: 5),
@@ -208,11 +234,6 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
         ],
       ),
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return check();
   }
 }
 

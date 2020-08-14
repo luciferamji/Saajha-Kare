@@ -1,8 +1,10 @@
+// flutter build apk --target-platform android-arm,android-arm64,android-x64 --split-per-abi
 import "package:flutter/material.dart";
 import 'package:pimp_my_button/pimp_my_button.dart';
 import "../widgets/MyParticle.dart";
 import 'package:shared_preferences/shared_preferences.dart';
 import "dart:async";
+import "package:nearby_connections/nearby_connections.dart";
 
 Color mainBGColor = Color(0xFFff8000);
 Color lightOrangeColor = Color(0xFFFFB266);
@@ -29,6 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void check() async {
     prefs = await SharedPreferences.getInstance();
     name = myController.text = prefs.getString("name");
+    await Nearby().stopAdvertising();
+    await Nearby().stopDiscovery();
   }
 
   @override
@@ -49,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   alignment: Alignment.bottomRight,
                   child: Image.asset(
                     "assets/images/Icon.png",
-                    scale: 2,
+                    scale: 1.2,
                     fit: BoxFit.contain,
                   ),
                 ),
