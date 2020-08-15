@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import "package:flutter/material.dart";
 import "package:animator/animator.dart";
 import 'package:nearby_connections/nearby_connections.dart';
 import "dart:math";
-import "package:circle_list/circle_list.dart";
 import 'package:share_a_hind/Models/connectedInfo.dart';
+import 'package:share_a_hind/Provider/disconnectStatus.dart';
+import "package:provider/provider.dart";
+import 'package:share_a_hind/widgets/timer.dart';
 import "../widgets/appbar.dart";
 
 class MakeReceiverConnectionScreen extends StatefulWidget {
@@ -18,13 +22,34 @@ class MakeReceiverConnectionScreen extends StatefulWidget {
 
 class _MakeReceiverConnectionScreenState
     extends State<MakeReceiverConnectionScreen> {
+  CheckConnectionStatus checkConnectionStatus;
+  var timer;
   @override
   void initState() {
     startAdvertising();
     super.initState();
   }
 
+  void bodyShowDialog(Widget data, bool canBeDismissed) {
+    showDialog(
+        context: context,
+        barrierDismissible: canBeDismissed,
+        builder: (_) => AlertDialog(content: data));
+  }
+
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
   void onConnectionInit(String id, ConnectionInfo info) {
+    timer = Timer(Duration(seconds: 5), () {
+      Navigator.pop(context);
+      Navigator.pop(context);
+      checkConnectionStatus.notifyConnect();
+      Navigator.of(context).pushReplacementNamed("Select File Screen",
+          arguments: ConnectedInfo(info.endpointName, id));
+    });
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -37,18 +62,13 @@ class _MakeReceiverConnectionScreenState
           ),
           actions: [
             FlatButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.of(context).pushNamed("Select File Screen",
-                      arguments: ConnectedInfo(info.endpointName, id));
-                },
-                child: Text("Accept")),
-            FlatButton(
                 onPressed: () async {
                   await Nearby().rejectConnection(id);
                   Navigator.pop(context);
                 },
-                child: Text("Reject"))
+                child: Row(
+                  children: [Text("Reject"), TImer5sec()],
+                ))
           ],
         );
       },
@@ -90,8 +110,20 @@ class _MakeReceiverConnectionScreenState
         onConnectionInitiated: onConnectionInit,
         onConnectionResult: (id, status) {
           print(status.toString() + "    " + id);
+          if (status == Status.CONNECTED) {
+          } else if (status == Status.REJECTED) {
+            //Navigator.pop(context);
+            Navigator.pop(context);
+            timer.cancel();
+            bodyShowDialog(Text("Connection Rejected "), true);
+          } else {
+            Navigator.pop(context);
+            bodyShowDialog(Text("Fatal Error"), true);
+          }
+          print(status);
         },
         onDisconnected: (id) {
+          checkConnectionStatus.notifyDisconnect();
           print("Disconnected: " + id);
         },
       );
@@ -103,6 +135,8 @@ class _MakeReceiverConnectionScreenState
 
   @override
   Widget build(BuildContext context) {
+    checkConnectionStatus =
+        Provider.of<CheckConnectionStatus>(context, listen: false);
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:share_a_hind/Provider/disconnectStatus.dart';
 import 'package:share_a_hind/Screens/MakeReceiverConnectionScreen.dart';
 import 'Screens/HomeScreen.dart';
 import 'package:nearby_connections/nearby_connections.dart';
@@ -33,19 +35,23 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Share India',
-      home: HomeScreen(),
-      theme: ThemeData(primarySwatch: Colors.orange),
-      routes: {
-        'send': (context) => MakeSenderConnectionScreen(
-            ModalRoute.of(context).settings.arguments),
-        'receive': (context) => MakeReceiverConnectionScreen(
-            ModalRoute.of(context).settings.arguments),
-        'Select File Screen': (context) =>
-            SendReceiveFileScreen(ModalRoute.of(context).settings.arguments)
-      },
+    return ChangeNotifierProvider.value(
+      value: CheckConnectionStatus(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Share India',
+        home: HomeScreen(),
+        theme: ThemeData(primarySwatch: Colors.orange),
+        routes: {
+          'send': (context) => MakeSenderConnectionScreen(
+              ModalRoute.of(context).settings.arguments),
+          'receive': (context) => MakeReceiverConnectionScreen(
+              ModalRoute.of(context).settings.arguments),
+          'Select File Screen': (context) =>
+              SendReceiveFileScreen(ModalRoute.of(context).settings.arguments),
+          'home': (context) => HomeScreen()
+        },
+      ),
     );
   }
 }

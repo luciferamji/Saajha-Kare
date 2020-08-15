@@ -1,8 +1,13 @@
+import 'dart:async';
+
 import "package:flutter/material.dart";
 import "package:animator/animator.dart";
 import 'package:nearby_connections/nearby_connections.dart';
 import "dart:math";
 import "package:circle_list/circle_list.dart";
+import 'package:provider/provider.dart';
+import 'package:share_a_hind/Provider/disconnectStatus.dart';
+import 'package:share_a_hind/widgets/timer.dart';
 import "../widgets/appbar.dart";
 import "../Models/DiscoverDevices.dart";
 import "../widgets/threeBounce.dart";
@@ -19,7 +24,9 @@ class MakeSenderConnectionScreen extends StatefulWidget {
 
 class _MakeSenderConnectionScreenState
     extends State<MakeSenderConnectionScreen> {
+  var timer;
   List<DiscoverDevices> discoveredDevices = [];
+  CheckConnectionStatus checkConnectionStatus;
   @override
   void initState() {
     startDiscovery();
@@ -27,7 +34,26 @@ class _MakeSenderConnectionScreenState
     super.initState();
   }
 
+  void bodyShowDialog(Widget data, bool canBeDismissed) {
+    showDialog(
+        context: context,
+        barrierDismissible: canBeDismissed,
+        builder: (_) => AlertDialog(content: data));
+  }
+
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
   void onConnectionInit(String id, ConnectionInfo info) {
+    timer = Timer(Duration(seconds: 5), () {
+      Navigator.pop(context);
+      Navigator.pop(context);
+      checkConnectionStatus.notifyConnect();
+      Navigator.of(context).pushReplacementNamed("Select File Screen",
+          arguments: ConnectedInfo(info.endpointName, id));
+    });
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -40,19 +66,12 @@ class _MakeSenderConnectionScreenState
           ),
           actions: [
             FlatButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.of(context).pushNamed("Select File Screen",
-                      arguments: ConnectedInfo(info.endpointName, id));
-                },
-                child: Text("Accept")),
-            FlatButton(
                 onPressed: () async {
                   await Nearby().rejectConnection(id);
-                  Navigator.pop(context);
-                  Navigator.pop(context);
+
+                  timer.cancel();
                 },
-                child: Text("Reject"))
+                child: Row(children: [Text("Reject"), TImer5sec()]))
           ],
         );
       },
@@ -91,18 +110,15 @@ class _MakeSenderConnectionScreenState
         widget.name,
         strategy,
         onEndpointLost: (endpointId) {
-          print("disconnected");
           this.setState(() {
             discoveredDevices
                 .removeWhere((element) => element.endpointId == endpointId);
           });
-          print(discoveredDevices);
         },
         onEndpointFound: (endpointId, endpointName, serviceId) {
           this.setState(() {
             discoveredDevices.add(DiscoverDevices(endpointId, endpointName));
           });
-          print(discoveredDevices);
           // showModalBottomSheet(
           //   context: context,
           //   builder: (builder) {
@@ -147,6 +163,8 @@ class _MakeSenderConnectionScreenState
 
   @override
   Widget build(BuildContext context) {
+    checkConnectionStatus =
+        Provider.of<CheckConnectionStatus>(context, listen: false);
     return Scaffold(
         body: Container(
       decoration: BoxDecoration(
@@ -252,18 +270,33 @@ class _MakeSenderConnectionScreenState
                               );
                             },
                           );
+                          var infox;
                           // Navigator.pop(context);
                           Nearby().requestConnection(
                             widget.name,
                             i.endpointId,
                             onConnectionInitiated: (id, info) {
+                              print("error");
+                              infox = info;
                               onConnectionInit(id, info);
                             },
                             onConnectionResult: (id, status) {
+                              if (status == Status.CONNECTED) {
+                              } else if (status == Status.REJECTED) {
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                                timer.cancel();
+                                bodyShowDialog(
+                                    Text("Connection Rejected "), true);
+                              } else {
+                                Navigator.pop(context);
+                                bodyShowDialog(Text("Fatal Error"), true);
+                              }
                               print(status);
                             },
                             onDisconnected: (id) {
-                              print(id);
+                              checkConnectionStatus.notifyDisconnect();
+                              print("disconnected" + id);
                             },
                           );
                         },
