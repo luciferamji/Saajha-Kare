@@ -6,8 +6,11 @@ import 'Screens/HomeScreen.dart';
 import 'package:nearby_connections/nearby_connections.dart';
 import './Screens/MakeSenderConnectionScreen.dart';
 import "./Screens/SendReceiveFileScreen.dart";
+import "package:flutter/services.dart";
 
 void main() {
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
   runApp(MyApp());
 }
 
