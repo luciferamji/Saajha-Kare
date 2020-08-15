@@ -9,8 +9,6 @@ import "./Screens/SendReceiveFileScreen.dart";
 import "package:flutter/services.dart";
 
 void main() {
-  SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
   runApp(MyApp());
 }
 
@@ -38,6 +36,9 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
     return ChangeNotifierProvider.value(
       value: CheckConnectionStatus(),
       child: MaterialApp(

@@ -23,6 +23,24 @@ class MyAppbar extends StatelessWidget implements PreferredSizeWidget {
             SizedBox(width: 20),
             Text("SAAJHA KARE",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+            SizedBox(
+              width: 20,
+            ),
+            IconButton(
+                icon: Icon(
+                  Icons.info,
+                  color: Colors.indigo,
+                ),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        content: Text("Check Data"),
+                      );
+                    },
+                  );
+                })
           ],
         ));
   }
