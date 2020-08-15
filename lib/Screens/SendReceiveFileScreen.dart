@@ -47,10 +47,14 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
   }
 
   void acceptConnection() async {
+    var directory = Directory("/storage/emulated/0/Download/Saajha Karo/");
+    if (!await directory.exists()) {
+      await directory.create();
+    }
     await Nearby().stopAdvertising();
     await Nearby().stopDiscovery();
     Nearby().acceptConnection(
-      widget.args,
+      widget.args.id,
       onPayLoadRecieved: (endid, payload) async {
         if (payload.type == PayloadType.BYTES) {
           String str = String.fromCharCodes(payload.bytes);
@@ -64,13 +68,12 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
             });
             if (map.containsKey(payloadId)) {
               if (await tempFile.exists()) {
+                print(tempFile.parent.path);
                 tempFile.rename(tempFile.parent.path + "/" + fileName);
               } else {
                 print("File doesnt exist");
               }
             } else {
-              print("hiiiiii");
-
               map[payloadId] = fileName;
             }
           }
@@ -79,7 +82,7 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
           tempFile = File(payload.filePath);
         }
       },
-      onPayloadTransferUpdate: (endid, payloadTransferUpdate) {
+      onPayloadTransferUpdate: (endid, payloadTransferUpdate) async {
         String name = map[payloadTransferUpdate.id];
 
         if (payloadTransferUpdate.status == PayloadStatus.IN_PROGRRESS) {
@@ -87,13 +90,7 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
               payloadTransferUpdate.bytesTransferred - transferData;
           transferData += transferinSeconds;
           currentSpeed += transferinSeconds;
-          print(transferinSeconds.toString() +
-              "                               " +
-              payloadTransferUpdate.bytesTransferred.toString() +
-              "                               " +
-              transferData.toString() +
-              "                              " +
-              currentSpeed.toString());
+
           this.setState(() {
             incomingFiles[name] = (payloadTransferUpdate.bytesTransferred /
                 payloadTransferUpdate.totalBytes);
@@ -104,13 +101,20 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
         } else if (payloadTransferUpdate.status == PayloadStatus.SUCCESS) {
           transferinSeconds = 0;
           transferData = 0;
+
           this.setState(() {
             incomingFiles[name] = 1;
           });
 
           if (map.containsKey(payloadTransferUpdate.id)) {
             String name = map[payloadTransferUpdate.id];
-            tempFile.rename(tempFile.parent.path + "/" + name);
+            var directory = Directory(
+                "/storage/emulated/0/Download/Saajha Karo/" + widget.args.name);
+            if (!await directory.exists()) {
+              await directory.create();
+            }
+
+            tempFile.rename(directory.path + "/" + name);
           } else {
             map[payloadTransferUpdate.id] = "";
           }
@@ -121,6 +125,11 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    this.setState(() {
+      this.incomingFiles.removeWhere((key, value) => key == null);
+    });
+
     return Scaffold(
       bottomNavigationBar: RaisedButton(
         child: Text("Send File Payload"),
@@ -128,20 +137,24 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
           List<File> files = await FilePicker.getMultiFile();
           int i = 0;
           if (files == null) return;
+
           while (i != files.length) {
             int payloadId =
-                await Nearby().sendFilePayload(widget.args, files[i].path);
+                await Nearby().sendFilePayload(widget.args.id, files[i].path);
+            String name;
+            name = files[i].path.split('/').last;
+            if (incomingFiles.containsKey(name)) {
+              name += "[1]";
+            }
+            map[payloadId] = name;
 
-            map[payloadId] = files[i].path.split('/').last;
             this.setState(() {
-              incomingFiles[files[i].path.split('/').last] = 0;
-              mapColor[files[i].path.split('/').last] = colorReceived;
+              incomingFiles[name] = 0;
+              mapColor[name] = colorReceived;
             });
 
-            Nearby().sendBytesPayload(
-                widget.args,
-                Uint8List.fromList(
-                    "$payloadId:${files[i].path.split('/').last}".codeUnits));
+            Nearby().sendBytesPayload(widget.args.id,
+                Uint8List.fromList("$payloadId:$name".codeUnits));
             i += 1;
           }
         },
@@ -152,20 +165,43 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
             expandedHeight: 150.0,
             pinned: true, //change si
             automaticallyImplyLeading: false,
-            title: Text("My App Bar"),
+            title: Text("SAAJHA KARE"),
             flexibleSpace: Container(
               child: FlexibleSpaceBar(
-                background: Center(
-                  child: Container(
-                    child: Text(currentSpeedData.toStringAsFixed(2)),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.orange,
-                          Colors.white,
-                          Color(0xFFB4F6C1)
+                background: Container(
+                  padding: EdgeInsets.all(statusBarHeight),
+                  height: statusBarHeight + 150,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      SizedBox(
+                        height: 60,
+                      ),
+                      Text(
+                        "You Are Conneced with ${widget.args.name}",
+                        style: TextStyle(fontSize: 22),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            currentSpeedData.toStringAsFixed(2) + "MBps",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            "Files : " + incomingFiles.length.toString(),
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ],
                       ),
+                    ],
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.orange, Colors.white, Color(0xFFB4F6C1)],
                     ),
                   ),
                 ),

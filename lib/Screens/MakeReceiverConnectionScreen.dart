@@ -3,6 +3,7 @@ import "package:animator/animator.dart";
 import 'package:nearby_connections/nearby_connections.dart';
 import "dart:math";
 import "package:circle_list/circle_list.dart";
+import 'package:share_a_hind/Models/connectedInfo.dart';
 import "../widgets/appbar.dart";
 
 class MakeReceiverConnectionScreen extends StatefulWidget {
@@ -38,8 +39,8 @@ class _MakeReceiverConnectionScreenState
             FlatButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  Navigator.of(context)
-                      .pushNamed("Select File Screen", arguments: id);
+                  Navigator.of(context).pushNamed("Select File Screen",
+                      arguments: ConnectedInfo(info.endpointName, id));
                 },
                 child: Text("Accept")),
             FlatButton(

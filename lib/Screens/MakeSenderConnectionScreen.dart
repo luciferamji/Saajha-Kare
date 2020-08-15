@@ -6,6 +6,7 @@ import "package:circle_list/circle_list.dart";
 import "../widgets/appbar.dart";
 import "../Models/DiscoverDevices.dart";
 import "../widgets/threeBounce.dart";
+import "../Models/connectedInfo.dart";
 
 class MakeSenderConnectionScreen extends StatefulWidget {
   final name;
@@ -41,8 +42,8 @@ class _MakeSenderConnectionScreenState
             FlatButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  Navigator.of(context)
-                      .pushNamed("Select File Screen", arguments: id);
+                  Navigator.of(context).pushNamed("Select File Screen",
+                      arguments: ConnectedInfo(info.endpointName, id));
                 },
                 child: Text("Accept")),
             FlatButton(
