@@ -9,7 +9,7 @@ class TImer5sec extends StatefulWidget {
 
 class _TImer5secState extends State<TImer5sec> {
   var timer;
-  int sec = 5;
+  int sec = 3;
   @override
   void initState() {
     timer = new Timer.periodic(new Duration(seconds: 1), (time) {

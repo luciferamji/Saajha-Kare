@@ -38,7 +38,10 @@ class _MakeSenderConnectionScreenState
     showDialog(
         context: context,
         barrierDismissible: canBeDismissed,
-        builder: (_) => AlertDialog(content: data));
+        builder: (_) => AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            content: data));
   }
 
   void dispose() {
@@ -47,7 +50,7 @@ class _MakeSenderConnectionScreenState
   }
 
   void onConnectionInit(String id, ConnectionInfo info) {
-    timer = Timer(Duration(seconds: 5), () {
+    timer = Timer(Duration(seconds: 3), () {
       Navigator.pop(context);
       Navigator.pop(context);
       checkConnectionStatus.notifyConnect();
@@ -59,8 +62,10 @@ class _MakeSenderConnectionScreenState
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           content: Text(
-            "Confirm this token ${info.authenticationToken} with ${info.endpointName}",
+            "Connect ${info.authenticationToken} with token ${info.endpointName}",
             style: TextStyle(fontSize: 20),
             softWrap: true,
           ),
@@ -76,28 +81,6 @@ class _MakeSenderConnectionScreenState
         );
       },
     );
-    // showModalBottomSheet(
-    //   context: context,
-    //   builder: (builder) {
-    //     return Center(
-    //       child: Column(
-    //         children: <Widget>[
-    //           Text("hihihi"),
-    //           Text("id: " + id),
-    //           Text("Token: " + info.authenticationToken),
-    //           Text("Name" + info.endpointName),
-    //           Text("Incoming: " + info.isIncomingConnection.toString()),
-    //           Text("Accept Connection"),
-    //           RaisedButton(onPressed: () {
-    //             Navigator.pop(context);
-    //             Navigator.of(context)
-    //                 .pushNamed("Select File Screen", arguments: id);
-    //           })
-    //         ],
-    //       ),
-    //     );
-    //   },
-    // );
   }
 
   void startDiscovery() async {
