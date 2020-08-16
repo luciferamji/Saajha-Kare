@@ -152,24 +152,21 @@ class _MakeReceiverConnectionScreenState
               width: MediaQuery.of(context).size.width,
               child: Stack(
                 children: [
-                  FittedBox(
-                    fit: BoxFit.cover,
-                    child: Animator<double>(
-                        duration: Duration(seconds: 10),
-                        repeats: 1000,
-                        tween: Tween<double>(begin: 0, end: 2 * pi),
-                        builder: (_, anim, __) {
-                          return Center(
-                            child: Transform.rotate(
-                              angle: anim.value,
-                              child: Opacity(
-                                  opacity: 0.26,
-                                  child: Image.asset(
-                                      "assets/images/ashok_chakra.png")),
-                            ),
-                          );
-                        }),
-                  )
+                  Animator<double>(
+                      duration: Duration(seconds: 10),
+                      repeats: 1000,
+                      tween: Tween<double>(begin: 0, end: 2 * pi),
+                      builder: (_, anim, __) {
+                        return Center(
+                          child: Transform.rotate(
+                            angle: anim.value,
+                            child: Opacity(
+                                opacity: 0.26,
+                                child: Image.asset(
+                                    "assets/images/ashok_chakra.png")),
+                          ),
+                        );
+                      })
                 ],
               ),
             ),

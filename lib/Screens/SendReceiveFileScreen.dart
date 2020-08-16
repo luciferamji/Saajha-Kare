@@ -8,6 +8,8 @@ import "dart:io";
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:share_a_hind/Provider/disconnectStatus.dart';
+import 'package:open_file/open_file.dart';
+import 'package:share_a_hind/Models/sharingFiles.dart';
 
 class SendReceiveFileScreen extends StatefulWidget {
   final args;
@@ -21,16 +23,19 @@ class SendReceiveFileScreen extends StatefulWidget {
 class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
   Map<String, double> incomingFiles = {};
   Map<String, List<Color>> mapColor = {};
+  List<SharingFiles> sharedFiles = [];
 
   List<Color> colorSend = [Color(0xFFFE5502), Color(0xFFFCD5A0)];
   List<Color> colorReceived = [Color(0xFF2B7B28), Color(0xFFB2F7C2)];
-  File tempFile; //reference to the file currently being transferred
+  Map<int, File> tempFile =
+      Map(); //reference to the file currently being transferred
   var transferinSeconds = 0;
   var transferData = 0;
   var currentSpeed = 0.0;
   var currentSpeedData = 0.0;
   var swatch = Stopwatch();
   Map<int, String> map = Map();
+  Map<int, bool> tempFileCheck = Map();
   var stopWatchIsRunning = false;
   var timer;
 
@@ -43,13 +48,38 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
     acceptConnection();
   }
 
-  void updateSpeed(timer) {
+  void updateSpeed(timer) async {
     this.setState(() {
       if (currentSpeed / 1000000 > 33.0 || currentSpeed / 1000000 < 0)
         currentSpeedData = Random().nextDouble() * (20 - 10) + 10;
       currentSpeedData = currentSpeedData = (currentSpeed / 1000000);
     });
     currentSpeed = 0;
+    tempFileCheck.keys.toList().forEach((element) {
+      sharedFiles.add(SharingFiles(
+          map[element],
+          "/storage/emulated/0/Saajha Karo/" +
+              widget.args.name +
+              "/" +
+              map[element],
+          element,
+          TranferDirection.SEND));
+      tempFileCheck.remove(element);
+      tempFile.remove(element);
+    });
+
+    var keys = tempFile.keys;
+    for (final data in keys) {
+      if (map.containsKey(data)) {
+        {
+          await tempFile[data].rename("/storage/emulated/0/Saajha Karo/" +
+              widget.args.name +
+              "/" +
+              map[data]);
+          tempFileCheck[data] = true;
+        }
+      }
+    }
   }
 
   void dispose() {
@@ -58,10 +88,16 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
   }
 
   void acceptConnection() async {
-    var directory = Directory("/storage/emulated/0/Download/Saajha Karo/");
+    var directory = Directory("/storage/emulated/0/Saajha Karo/");
     if (!await directory.exists()) {
       await directory.create();
     }
+    var directoryx =
+        Directory("/storage/emulated/0/Saajha Karo/" + widget.args.name);
+    if (!await directoryx.exists()) {
+      await directoryx.create();
+    }
+
     await Nearby().stopAdvertising();
     await Nearby().stopDiscovery();
     Nearby().acceptConnection(
@@ -73,29 +109,37 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
           if (str.contains(':')) {
             int payloadId = int.parse(str.split(':')[0]);
             String fileName = (str.split(':')[1]);
+
             this.setState(() {
               incomingFiles["$fileName"] = 0;
               mapColor[fileName] = colorSend;
             });
-            if (map.containsKey(payloadId)) {
-              if (await tempFile.exists()) {
-                print(tempFile.parent.path);
-                tempFile.rename(tempFile.parent.path + "/" + fileName);
-              } else {
-                print("File doesnt exist");
-              }
-            } else {
-              map[payloadId] = fileName;
-            }
+
+            map[payloadId] = fileName;
+
+            // if (map.containsKey(payloadId)) {
+            //   if (await tempFile.exists()) {
+            //     print(tempFile.path +
+            //         "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy                            " +
+            //         payloadId.toString());
+            //   } else {
+            //     print("File doesnt exist");
+            //   }
+            // } else {
+            //   print(payloadId.toString() +
+            //       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx                         " +
+            //       fileName);
+            //   map[payloadId] = fileName;
+            // }
           }
         } else if (payload.type == PayloadType.FILE) {
-          print(endid + ": File transfer started");
-          tempFile = File(payload.filePath);
+          tempFile[payload.id] = File(payload.filePath);
         }
       },
       onPayloadTransferUpdate: (endid, payloadTransferUpdate) async {
         String name = map[payloadTransferUpdate.id];
-
+        // print(map);
+        // print(payloadTransferUpdate.id);
         if (payloadTransferUpdate.status == PayloadStatus.IN_PROGRRESS) {
           transferinSeconds =
               payloadTransferUpdate.bytesTransferred - transferData;
@@ -113,19 +157,11 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
           transferinSeconds = 0;
           transferData = 0;
 
-          this.setState(() {
-            incomingFiles[name] = 1;
-          });
-
           if (map.containsKey(payloadTransferUpdate.id)) {
             String name = map[payloadTransferUpdate.id];
-            var directory = Directory(
-                "/storage/emulated/0/Download/Saajha Karo/" + widget.args.name);
-            if (!await directory.exists()) {
-              await directory.create();
-            }
-
-            tempFile.rename(directory.path + "/" + name);
+            this.setState(() {
+              incomingFiles[name] = 1;
+            });
           } else {
             map[payloadTransferUpdate.id] = "";
           }
@@ -165,19 +201,21 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
                         while (i != files.length) {
                           int payloadId = await Nearby()
                               .sendFilePayload(widget.args.id, files[i].path);
+
                           String name;
                           name = files[i].path.split('/').last;
                           if (incomingFiles.containsKey(name)) {
                             name += "[1]";
                           }
                           map[payloadId] = name;
-
+                          sharedFiles.add(SharingFiles(name, files[i].path,
+                              payloadId, TranferDirection.SEND));
                           this.setState(() {
                             incomingFiles[name] = 0;
                             mapColor[name] = colorReceived;
                           });
 
-                          Nearby().sendBytesPayload(widget.args.id,
+                          await Nearby().sendBytesPayload(widget.args.id,
                               Uint8List.fromList("$payloadId:$name".codeUnits));
                           i += 1;
                         }
@@ -294,44 +332,54 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
               String key = incomingFiles.keys.elementAt(i);
               if (key == null) return Text("");
               double value = incomingFiles.values.elementAt(i);
-
+              var data = sharedFiles.firstWhere(
+                  (element) => element.fileName == key,
+                  orElse: () => null);
+              ;
               return Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Card(
-                  margin: EdgeInsets.only(bottom: 5, right: 5, left: 5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  shadowColor: mapColor[key][0],
-                  elevation: 5,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * 0.75,
-                          child: Text(
-                            key,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                color: mapColor[key][0], fontSize: 18),
-                            textAlign: TextAlign.left,
+                child: GestureDetector(
+                  onTap: value == 1
+                      ? () {
+                          OpenFile.open(data.path);
+                        }
+                      : () {},
+                  child: Card(
+                    margin: EdgeInsets.only(bottom: 5, right: 5, left: 5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    shadowColor: mapColor[key][0],
+                    elevation: 5,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.75,
+                            child: Text(
+                              key,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  color: mapColor[key][0], fontSize: 18),
+                              textAlign: TextAlign.left,
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      _AnimatedLiquidLinearProgressIndicator(
-                          value, key, mapColor[key]),
-                      SizedBox(
-                        height: 10,
-                      ),
-                    ],
+                        SizedBox(
+                          height: 10,
+                        ),
+                        _AnimatedLiquidLinearProgressIndicator(
+                            value, key, mapColor[key]),
+                        SizedBox(
+                          height: 10,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -340,57 +388,6 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
           SliverFillRemaining(
             child: Text(""),
           )
-          // SliverFillRemaining(
-          //   child: SingleChildScrollView(
-          //     child: Container(
-          //       color: Color(0xFFE8EEFF),
-          //       child: Container(
-          //         height: MediaQuery.of(context).size.height * 0.9,
-          //         color: Colors.white,
-          //         child: ListView.builder(
-          //           itemBuilder: (_, i) {
-          //             String key = incomingFiles.keys.elementAt(i);
-          //             if (key == null) return SizedBox.shrink();
-          //             double value = incomingFiles.values.elementAt(i);
-
-          //             return Card(
-          //               margin: EdgeInsets.only(bottom: 15, right: 5, left: 5),
-          //               shape: RoundedRectangleBorder(
-          //                 borderRadius: BorderRadius.circular(10),
-          //               ),
-          //               shadowColor: mapColor[key][0],
-          //               child: Column(
-          //                 crossAxisAlignment: CrossAxisAlignment.start,
-          //                 children: [
-          //                   Padding(
-          //                     padding:
-          //                         const EdgeInsets.symmetric(horizontal: 8),
-          //                     child: Container(
-          //                       width: MediaQuery.of(context).size.width * 0.75,
-          //                       child: Text(
-          //                         key,
-          //                         overflow: TextOverflow.ellipsis,
-          //                         style: TextStyle(
-          //                             color: mapColor[key][0], fontSize: 18),
-          //                         textAlign: TextAlign.left,
-          //                       ),
-          //                     ),
-          //                   ),
-          //                   SizedBox(
-          //                     height: 10,
-          //                   ),
-          //                   _AnimatedLiquidLinearProgressIndicator(
-          //                       value, key, mapColor[key]),
-          //                 ],
-          //               ),
-          //             );
-          //           },
-          //           itemCount: incomingFiles.length,
-          //         ),
-          //       ),
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );
