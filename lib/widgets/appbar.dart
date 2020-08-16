@@ -13,7 +13,6 @@ class MyAppbar extends StatelessWidget implements PreferredSizeWidget {
         ),
         height: preferredSize.height,
         child: Row(
-          // mainAxisAlignment: MainAxisAlignment.start,
           children: [
             SizedBox(width: 20),
             Image.asset(
@@ -26,24 +25,6 @@ class MyAppbar extends StatelessWidget implements PreferredSizeWidget {
             SizedBox(
               width: 20,
             ),
-            IconButton(
-                icon: Icon(
-                  Icons.info,
-                  color: Colors.indigo,
-                ),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        content: Text(
-                          "By Default all the downloads are Stored in Saajha Karo/ .More customisation will be available in future update",
-                          softWrap: true,
-                        ),
-                      );
-                    },
-                  );
-                })
           ],
         ));
   }

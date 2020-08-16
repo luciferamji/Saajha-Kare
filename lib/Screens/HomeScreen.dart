@@ -24,8 +24,17 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     check();
-
+    handlePermission();
     super.initState();
+  }
+
+  void handlePermission() async {
+    while (!await Nearby().checkLocationPermission())
+      Nearby().askLocationPermission();
+    while (!await Nearby().checkExternalStoragePermission())
+      Nearby().askExternalStoragePermission();
+    while (!await Nearby().checkLocationEnabled())
+      Nearby().enableLocationServices();
   }
 
   void check() async {
@@ -65,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: TextField(
+                maxLength: 10,
                 controller: myController,
                 onEditingComplete: () async {
                   name = myController.text;
@@ -78,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             SizedBox(
-              height: height1 * 0.15,
+              height: height1 * 0.08,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -97,6 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               heroTag: null,
                               onPressed: () {
                                 controller.forward(from: 0.0);
+                                prefs.setString("name", myController.text);
                                 Timer(Duration(milliseconds: 500), () {
                                   Navigator.of(context)
                                       .pushNamed("send", arguments: name);
@@ -143,6 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               onPressed: () {
                                 controller.forward(from: 0.0);
                                 controller.forward(from: 0.0);
+                                prefs.setString("name", myController.text);
                                 Timer(Duration(milliseconds: 500), () {
                                   Navigator.of(context)
                                       .pushNamed("receive", arguments: name);

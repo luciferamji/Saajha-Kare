@@ -34,7 +34,10 @@ class _MakeReceiverConnectionScreenState
     showDialog(
         context: context,
         barrierDismissible: canBeDismissed,
-        builder: (_) => AlertDialog(content: data));
+        builder: (_) => AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            content: data));
   }
 
   void dispose() {
@@ -43,7 +46,7 @@ class _MakeReceiverConnectionScreenState
   }
 
   void onConnectionInit(String id, ConnectionInfo info) {
-    timer = Timer(Duration(seconds: 5), () {
+    timer = Timer(Duration(seconds: 3), () {
       Navigator.pop(context);
       Navigator.pop(context);
       checkConnectionStatus.notifyConnect();
@@ -55,6 +58,8 @@ class _MakeReceiverConnectionScreenState
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           content: Text(
             "${info.endpointName} wants to connect with you from Token ${info.authenticationToken} ",
             style: TextStyle(fontSize: 20),
