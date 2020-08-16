@@ -37,7 +37,9 @@ class MyAppbar extends StatelessWidget implements PreferredSizeWidget {
                     builder: (context) {
                       return AlertDialog(
                         content: Text(
-                            "By Default all the downloads are Stored in Download/Saajha Karo/ .More customisation will be available in future update"),
+                          "By Default all the downloads are Stored in Saajha Karo/ .More customisation will be available in future update",
+                          softWrap: true,
+                        ),
                       );
                     },
                   );
