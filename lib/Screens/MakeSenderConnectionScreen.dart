@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import "package:flutter/material.dart";
 import "package:animator/animator.dart";
 import 'package:nearby_connections/nearby_connections.dart';
@@ -202,8 +203,9 @@ class _MakeSenderConnectionScreenState
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
                                   children: [
-                                    Text(
+                                    AutoSizeText(
                                       "Establishing Connection",
+                                      maxLines: 1,
                                       style: TextStyle(
                                           fontSize: 30,
                                           color: Colors.blue[900]),

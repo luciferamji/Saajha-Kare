@@ -3,6 +3,7 @@ import 'package:intro_views_flutter/Models/page_view_model.dart';
 import 'package:intro_views_flutter/intro_views_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
+import "package:auto_size_text/auto_size_text.dart";
 
 class Cond extends StatefulWidget {
   @override
@@ -35,30 +36,34 @@ class _CondState extends State<Cond> {
           bubble: Image.asset('assets/images/iconAppBar.png'),
           body: Column(
             children: [
-              Text(
+              AutoSizeText(
                 "SAAJHA KARE",
+                maxLines: 1,
                 style: TextStyle(color: Colors.indigo[900]),
               ),
               SizedBox(
                 height: 20,
               ),
-              Text(
+              AutoSizeText(
                 "A Truly Indian File Sharing App",
+                maxLines: 1,
                 style: TextStyle(fontSize: 20),
               ),
             ],
           ),
           title: Column(
             children: [
-              Text(
+              AutoSizeText(
                 'WELCOME',
+                maxLines: 1,
                 style: TextStyle(color: Colors.indigo[900]),
               ),
               SizedBox(
                 height: 5,
               ),
-              Text(
+              AutoSizeText(
                 "Thank You For Downloading",
+                maxLines: 1,
                 style: TextStyle(fontSize: 15, color: Colors.indigo),
               )
             ],
@@ -77,18 +82,23 @@ class _CondState extends State<Cond> {
         bubble: Image.asset('assets/images/iconAppBar.png'),
         body: Column(
           children: [
-            Text(
+            AutoSizeText(
               'Its a long journey, which will come to a halt without you. Lets do it together.',
+              maxLines: 3,
             ),
             SizedBox(
               height: 10,
             ),
-            Text(
+            AutoSizeText(
               'Keep Supporting us.',
+              maxLines: 1,
             ),
           ],
         ),
-        title: Text('WE NEED SUPPORT'),
+        title: AutoSizeText(
+          'WE NEED SUPPORT',
+          maxLines: 1,
+        ),
         mainImage: Image.asset(
           'assets/images/ashok_chakra.png',
           height: MediaQuery.of(context).size.width,
@@ -105,17 +115,26 @@ class _CondState extends State<Cond> {
         bubble: Image.asset('assets/images/iconAppBar.png'),
         body: Column(
           children: [
-            Text(
+            AutoSizeText(
               "We need your location and storage permission (Forced by android 😔).",
+              maxLines: 2,
               style: TextStyle(fontSize: 20),
             ),
             SizedBox(
               height: 10,
             ),
-            Text("Please allow."),
+            AutoSizeText(
+              "Please allow.",
+              maxLines: 1,
+            ),
           ],
         ),
-        title: Text('Just One More Thing!!'),
+        title: AutoSizeText(
+          'Just One More Thing!!!',
+          maxLines: 2,
+          softWrap: true,
+          textAlign: TextAlign.center,
+        ),
         mainImage: Image.asset(
           'assets/images/Icon.png',
           height: 285.0,
