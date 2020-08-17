@@ -1,4 +1,5 @@
 // flutter build apk --target-platform android-arm,android-arm64,android-x64 --split-per-abi
+import 'package:auto_size_text/auto_size_text.dart';
 import "package:flutter/material.dart";
 import 'package:pimp_my_button/pimp_my_button.dart';
 import "../widgets/MyParticle.dart";
@@ -109,8 +110,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                 controller.forward(from: 0.0);
                                 prefs.setString("name", myController.text);
                                 Timer(Duration(milliseconds: 500), () {
-                                  Navigator.of(context)
-                                      .pushNamed("send", arguments: name);
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        content: Text(
+                                          "Please close your wifi and hotspot (if on) for better speed .This will soon be automated in future update",
+                                          style: TextStyle(fontSize: 20),
+                                          softWrap: true,
+                                        ),
+                                        actions: [
+                                          FlatButton(
+                                              onPressed: () async {
+                                                Navigator.of(context).pushNamed(
+                                                    "send",
+                                                    arguments: name);
+                                              },
+                                              child: Text("Ok and Proceed"))
+                                        ],
+                                      );
+                                    },
+                                  );
                                 });
                               },
                               child: Icon(
@@ -156,8 +180,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                 controller.forward(from: 0.0);
                                 prefs.setString("name", myController.text);
                                 Timer(Duration(milliseconds: 500), () {
-                                  Navigator.of(context)
-                                      .pushNamed("receive", arguments: name);
+                                  showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10)),
+                                        content: Text(
+                                          "Please close your wifi and hotspot (if on) for better speed .This will soon be automated in future update",
+                                          style: TextStyle(fontSize: 20),
+                                          softWrap: true,
+                                        ),
+                                        actions: [
+                                          FlatButton(
+                                              onPressed: () async {
+                                                Navigator.of(context).pushNamed(
+                                                    "receive",
+                                                    arguments: name);
+                                              },
+                                              child: Text("Ok and Proceed"))
+                                        ],
+                                      );
+                                    },
+                                  );
                                 });
                               },
                               child: Icon(
