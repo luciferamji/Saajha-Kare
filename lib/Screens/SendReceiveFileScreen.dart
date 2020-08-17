@@ -34,6 +34,7 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
   var currentSpeed = 0.0;
   var currentSpeedData = 0.0;
   var swatch = Stopwatch();
+  bool cachingFiles = false;
   Map<int, String> map = Map();
   Map<int, bool> tempFileCheck = Map();
   var stopWatchIsRunning = false;
@@ -208,40 +209,56 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
                   if (check.connected)
                     RaisedButton.icon(
                         icon: Icon(Icons.add),
-                        label: Text("Send File/s"),
-                        color: Colors.orange[100],
-                        onPressed: () async {
-                          List<File> files = await FilePicker.getMultiFile();
-                          int i = 0;
-                          if (files == null) return;
+                        label: Text(
+                            cachingFiles ? "Preparing files" : "Send File/s"),
+                        color: cachingFiles
+                            ? Colors.grey[400]
+                            : Colors.orange[100],
+                        onPressed: cachingFiles
+                            ? () {}
+                            : () async {
+                                this.setState(() {
+                                  cachingFiles = true;
+                                });
+                                List<File> files =
+                                    await FilePicker.getMultiFile();
+                                this.setState(() {
+                                  cachingFiles = false;
+                                });
+                                int i = 0;
+                                if (files == null) return;
 
-                          while (i != files.length) {
-                            int payloadId = await Nearby()
-                                .sendFilePayload(widget.args.id, files[i].path);
+                                while (i != files.length) {
+                                  int payloadId = await Nearby()
+                                      .sendFilePayload(
+                                          widget.args.id, files[i].path);
 
-                            String name;
-                            name = files[i].path.split('/').last;
-                            if (incomingFiles.containsKey(name)) {
-                              int a = name.lastIndexOf(".");
-                              name = name.substring(0, a) +
-                                  "[1]" +
-                                  name.substring(a);
-                            }
-                            map[payloadId] = name;
-                            sharedFiles.add(SharingFiles(name, files[i].path,
-                                payloadId, TranferDirection.SEND));
-                            this.setState(() {
-                              incomingFiles[name] = 0;
-                              mapColor[name] = colorReceived;
-                            });
+                                  String name;
+                                  name = files[i].path.split('/').last;
+                                  if (incomingFiles.containsKey(name)) {
+                                    int a = name.lastIndexOf(".");
+                                    name = name.substring(0, a) +
+                                        "[1]" +
+                                        name.substring(a);
+                                  }
+                                  map[payloadId] = name;
+                                  sharedFiles.add(SharingFiles(
+                                      name,
+                                      files[i].path,
+                                      payloadId,
+                                      TranferDirection.SEND));
+                                  this.setState(() {
+                                    incomingFiles[name] = 0;
+                                    mapColor[name] = colorReceived;
+                                  });
 
-                            await Nearby().sendBytesPayload(
-                                widget.args.id,
-                                Uint8List.fromList(
-                                    "$payloadId:$name".codeUnits));
-                            i += 1;
-                          }
-                        }),
+                                  Nearby().sendBytesPayload(
+                                      widget.args.id,
+                                      Uint8List.fromList(
+                                          "$payloadId:$name".codeUnits));
+                                  i += 1;
+                                }
+                              }),
                   RaisedButton.icon(
                     icon: Icon(Icons.cancel),
                     onPressed: () async {
