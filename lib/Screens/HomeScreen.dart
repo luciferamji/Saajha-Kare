@@ -1,7 +1,7 @@
 // flutter build apk --target-platform android-arm,android-arm64,android-x64 --split-per-abi
-import 'package:auto_size_text/auto_size_text.dart';
 import "package:flutter/material.dart";
 import 'package:pimp_my_button/pimp_my_button.dart';
+
 import "../widgets/MyParticle.dart";
 import 'package:shared_preferences/shared_preferences.dart';
 import "dart:async";
