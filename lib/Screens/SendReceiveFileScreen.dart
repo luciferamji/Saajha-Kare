@@ -52,7 +52,8 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
     this.setState(() {
       if (currentSpeed / 1000000 > 33.0 || currentSpeed / 1000000 < 0)
         currentSpeedData = Random().nextDouble() * (20 - 10) + 10;
-      currentSpeedData = currentSpeedData = (currentSpeed / 1000000);
+      else
+        currentSpeedData = currentSpeedData = (currentSpeed / 1000000);
     });
     currentSpeed = 0;
     tempFileCheck.keys.toList().forEach((element) {
@@ -221,7 +222,10 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
                             String name;
                             name = files[i].path.split('/').last;
                             if (incomingFiles.containsKey(name)) {
-                              name += "[1]";
+                              int a = name.lastIndexOf(".");
+                              name = name.substring(0, a) +
+                                  "[1]" +
+                                  name.substring(a);
                             }
                             map[payloadId] = name;
                             sharedFiles.add(SharingFiles(name, files[i].path,
@@ -291,6 +295,7 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10)),
                               content: Column(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
                                     "By Default all the downloads are Stored in Saajha Kare.",
