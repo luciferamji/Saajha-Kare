@@ -188,6 +188,7 @@ class _SendReceiveFileScreenState extends State<SendReceiveFileScreen> {
                 FlatButton(
                     onPressed: () async {
                       await Nearby().stopAllEndpoints();
+
                       Navigator.of(context).pushReplacementNamed("home");
                     },
                     child: Text("Go Back"))

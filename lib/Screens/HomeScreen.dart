@@ -30,11 +30,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void handlePermission() async {
-    while (!await Nearby().checkLocationPermission())
+    if (!await Nearby().checkLocationPermission())
       Nearby().askLocationPermission();
-    while (!await Nearby().checkExternalStoragePermission())
+    if (!await Nearby().checkExternalStoragePermission())
       Nearby().askExternalStoragePermission();
-    while (!await Nearby().checkLocationEnabled())
+    if (!await Nearby().checkLocationEnabled())
       Nearby().enableLocationServices();
   }
 
@@ -126,6 +126,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         actions: [
                                           FlatButton(
                                               onPressed: () async {
+                                                Navigator.pop(context);
+
                                                 Navigator.of(context).pushNamed(
                                                     "send",
                                                     arguments: name);
@@ -196,6 +198,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         actions: [
                                           FlatButton(
                                               onPressed: () async {
+                                                Navigator.pop(context);
+
                                                 Navigator.of(context).pushNamed(
                                                     "receive",
                                                     arguments: name);
