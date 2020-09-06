@@ -26,7 +26,7 @@ dependencies:
   pimp_my_button: ^1.0.0
   animator: ^2.0.1
   nearby_connections: ^1.1.1+1
-  file_picker: ^1.13.3
+  file_picker: ^1.2.0
   liquid_progress_indicator: ^0.3.2
   shared_preferences: ^0.5.8
   circle_list: ^1.0.2
@@ -34,7 +34,7 @@ dependencies:
   open_file: ^3.0.1
   intro_views_flutter: ^2.8.1
   auto_size_text: ^2.1.0
-  permission_handler: ^5.0.1+1
+  permission_handler: ^5.0.0+hotfix.1
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.3
