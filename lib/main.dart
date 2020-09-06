@@ -3,11 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:share_a_hind/Provider/disconnectStatus.dart';
 import 'package:share_a_hind/Screens/MakeReceiverConnectionScreen.dart';
 import 'Screens/HomeScreen.dart';
-import 'package:nearby_connections/nearby_connections.dart';
 import './Screens/MakeSenderConnectionScreen.dart';
 import "./Screens/SendReceiveFileScreen.dart";
 import "package:flutter/services.dart";
 import "./Screens/CheckScreen.dart";
+import 'Screens/Permission.dart';
 
 void main() {
   runApp(MyApp());
@@ -44,7 +44,8 @@ class _MyAppState extends State<MyApp> {
               ModalRoute.of(context).settings.arguments),
           'Select File Screen': (context) =>
               SendReceiveFileScreen(ModalRoute.of(context).settings.arguments),
-          'home': (context) => HomeScreen()
+          'home': (context) => HomeScreen(),
+          '/permission': (context) => Permission()
         },
       ),
     );

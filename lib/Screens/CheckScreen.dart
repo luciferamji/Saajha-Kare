@@ -146,14 +146,14 @@ class _CondState extends State<Cond> {
     ];
     return IntroViewsFlutter(
       pages,
-      showBackButton: false,
+      showBackButton: true,
       onTapDoneButton: () async {
         prefs.setBool("first", false);
         prefs.setString("name", (Random().nextInt(500) + 10000).toString());
         Navigator.of(context).pushReplacementNamed('home');
       },
       pageButtonTextStyles: TextStyle(
-        color: Colors.white,
+        color: Colors.black,
         fontSize: 18.0,
       ),
     );

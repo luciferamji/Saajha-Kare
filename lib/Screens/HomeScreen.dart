@@ -30,12 +30,18 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void handlePermission() async {
-    if (!await Nearby().checkLocationPermission())
-      Nearby().askLocationPermission();
-    if (!await Nearby().checkExternalStoragePermission())
-      Nearby().askExternalStoragePermission();
-    if (!await Nearby().checkLocationEnabled())
-      Nearby().enableLocationServices();
+    var locPerm = await Nearby().checkLocationPermission();
+    var extPerm = await Nearby().checkExternalStoragePermission();
+    var locenb = await Nearby().checkLocationEnabled();
+    if (!(locPerm && extPerm && locenb)) {
+      Nearby().askLocationAndExternalStoragePermission();
+    }
+
+    //   Nearby().askLocationPermission();
+    // if (!)
+    //   Nearby().askExternalStoragePermission();
+    // if (!)
+    //   Nearby().enableLocationServices();
   }
 
   void check() async {
@@ -106,9 +112,21 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: FloatingActionButton(
                               backgroundColor: Colors.orange,
                               heroTag: null,
-                              onPressed: () {
+                              onPressed: () async {
                                 controller.forward(from: 0.0);
                                 prefs.setString("name", myController.text);
+                                var locPerm =
+                                    await Nearby().checkLocationPermission();
+                                var extPerm = await Nearby()
+                                    .checkExternalStoragePermission();
+                                var locenb =
+                                    await Nearby().checkLocationEnabled();
+                                if (!(locPerm && extPerm && locenb)) {
+                                  Navigator.of(context)
+                                      .pushNamed("/permission");
+                                  return;
+                                }
+
                                 Timer(Duration(milliseconds: 500), () {
                                   showDialog(
                                     context: context,
@@ -126,8 +144,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                         actions: [
                                           FlatButton(
                                               onPressed: () async {
-                                                Navigator.pop(context);
-
                                                 Navigator.of(context).pushNamed(
                                                     "send",
                                                     arguments: name);
@@ -177,10 +193,21 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: FloatingActionButton(
                               backgroundColor: Colors.green,
                               heroTag: null,
-                              onPressed: () {
+                              onPressed: () async {
                                 controller.forward(from: 0.0);
                                 controller.forward(from: 0.0);
                                 prefs.setString("name", myController.text);
+                                var locPerm =
+                                    await Nearby().checkLocationPermission();
+                                var extPerm = await Nearby()
+                                    .checkExternalStoragePermission();
+                                var locenb =
+                                    await Nearby().checkLocationEnabled();
+                                if (!(locPerm && extPerm && locenb)) {
+                                  Navigator.of(context)
+                                      .pushNamed("/permission");
+                                  return;
+                                }
                                 Timer(Duration(milliseconds: 500), () {
                                   showDialog(
                                     context: context,
