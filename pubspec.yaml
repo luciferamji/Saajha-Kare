@@ -26,7 +26,7 @@ dependencies:
   pimp_my_button: ^1.0.0
   animator: ^2.0.1
   nearby_connections: ^1.1.1+1
-  file_picker: ^1.2.0
+  file_picker: ^1.13.3
   liquid_progress_indicator: ^0.3.2
   shared_preferences: ^0.5.8
   circle_list: ^1.0.2
