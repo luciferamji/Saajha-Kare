@@ -53,4 +53,6 @@ Transfer & Share in a few clicks
 2. ###### Run the app in physical device (Recommended)
 
 
-   <center>Made With ❤️ by Flutter</center>                        
+<h1 align="center">
+ Made With ❤️ by Flutter 
+</h1>                       
