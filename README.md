@@ -54,5 +54,5 @@ Transfer & Share in a few clicks
 
 
 <h1 align="center">
- Made With ❤️ by Flutter 
+ Made With ❤️ with Flutter 
 </h1>                       
