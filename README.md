@@ -51,3 +51,6 @@ Transfer & Share in a few clicks
 
 1. ###### Install all the dependencies in pubspec.yaml `flutter pub get`
 2. ###### Run the app in physical device (Recommended)
+
+
+   <center>Made With ❤️ by Flutter</center>                        
